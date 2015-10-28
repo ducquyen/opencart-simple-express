@@ -1,0 +1,542 @@
+<modification>
+	<name>简易订单快递配置</name>
+	<code>opencart_express</code>
+	<version>1.0</version>
+
+	<file path="admin/language/english/sale/order.php">
+		<operation error="skip">
+			<search><![CDATA[$_['text_list']]]></search>
+			<add position="after"><![CDATA[
+				$_['text_edit_express']           = 'Edit Express Info';
+				$_['text_edit_express_success']   = 'Edit Express Success';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['entry_store']]]></search>
+			<add position="after"><![CDATA[
+				$_['entry_express_company']     = 'Express Company';
+				$_['entry_express_number']      = 'Express Number';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['error_warning']]]></search>
+			<add position="after"><![CDATA[
+				$_['error_express_number']       = 'Express number should not be null!';
+				$_['error_express_company']      = 'Express company is too long!';
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/language/zh-CN/sale/order.php">
+		<operation error="skip">
+			<search><![CDATA[$_['text_list']]]></search>
+			<add position="after"><![CDATA[
+				$_['text_edit_express']           = '编辑快递信息';
+				$_['text_edit_express_success']   = '编辑快递信息成功';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['entry_store']]]></search>
+			<add position="after"><![CDATA[
+				$_['entry_express_company']     = '快递公司';
+				$_['entry_express_number']      = '快递编号';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['error_warning']]]></search>
+			<add position="after"><![CDATA[
+				$_['error_express_number']       = '快递编号不能为空！';
+				$_['error_express_company']      = '快递公司名称过长！';
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/language/zh-HK/sale/order.php">
+		<operation error="skip">
+			<search><![CDATA[$_['text_list']]]></search>
+			<add position="after"><![CDATA[
+				$_['text_edit_express']           = '編輯快遞信息';
+				$_['text_edit_express_success']   = '編輯快遞信息成功';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['entry_store']]]></search>
+			<add position="after"><![CDATA[
+				$_['entry_express_company']     = '快遞公司';
+				$_['entry_express_number']      = '快遞編號';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['error_warning']]]></search>
+			<add position="after"><![CDATA[
+				$_['error_express_number']       = '快遞編號不能為空！';
+				$_['error_express_company']      = '快遞公司名稱過長！';
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/language/english/default.php">
+		<operation error="skip">
+			<search><![CDATA[button_currency]]></search>
+			<add position="after"><![CDATA[
+				$_['button_express']              =   'Edit Express Info';
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="admin/language/zh-CN/default.php">
+		<operation error="skip">
+			<search><![CDATA[button_currency]]></search>
+			<add position="after"><![CDATA[
+				$_['button_express']              =   '编辑快递信息';
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="admin/language/zh-HK/default.php">
+		<operation error="skip">
+			<search><![CDATA[button_currency]]></search>
+			<add position="after"><![CDATA[
+				$_['button_express']              =   '編輯快遞信息';
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="admin/controller/sale/order.php">
+		<operation error="skip">
+			<search><![CDATA[public function api() {]]></search>
+			<add position="before"><![CDATA[
+
+	public function express() {
+		$this->load->language('sale/order');
+
+		$this->document->setTitle($this->language->get('heading_title'));
+
+		$this->load->model('sale/order');
+
+		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateExpressForm()) {
+			$this->model_sale_order->editOrderExpress($this->request->get['order_id'], $this->request->post);
+
+			$this->session->data['success'] = $this->language->get('text_edit_express_success');
+
+			$url = '';
+
+			if (isset($this->request->get['filter_order_id'])) {
+				$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];
+			}
+
+			if (isset($this->request->get['filter_customer'])) {
+				$url .= '&filter_customer=' . urlencode(html_entity_decode($this->request->get['filter_customer'], ENT_QUOTES, 'UTF-8'));
+			}
+
+			if (isset($this->request->get['filter_order_status'])) {
+				$url .= '&filter_order_status=' . $this->request->get['filter_order_status'];
+			}
+
+			if (isset($this->request->get['filter_total'])) {
+				$url .= '&filter_total=' . $this->request->get['filter_total'];
+			}
+
+			if (isset($this->request->get['filter_date_added'])) {
+				$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
+			}
+
+			if (isset($this->request->get['filter_date_modified'])) {
+				$url .= '&filter_date_modified=' . $this->request->get['filter_date_modified'];
+			}
+
+			if (isset($this->request->get['sort'])) {
+				$url .= '&sort=' . $this->request->get['sort'];
+			}
+
+			if (isset($this->request->get['order'])) {
+				$url .= '&order=' . $this->request->get['order'];
+			}
+
+			if (isset($this->request->get['page'])) {
+				$url .= '&page=' . $this->request->get['page'];
+			}
+
+			$this->response->redirect($this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL'));
+		}
+		
+		$this->getExpressForm();
+	}
+	
+	public function getExpressForm() {
+
+		$data['heading_title'] = $this->language->get('heading_title');
+		
+		$data['text_edit_express'] = $this->language->get('text_edit_express');
+		$data['text_select'] = $this->language->get('text_select');
+
+		$data['entry_express_company'] = $this->language->get('entry_express_company');
+		$data['entry_express_number'] = $this->language->get('entry_express_number');
+		
+		$data['button_save'] = $this->language->get('button_save');
+		$data['button_cancel'] = $this->language->get('button_cancel');
+		$data['button_continue'] = $this->language->get('button_continue');
+		$data['button_back'] = $this->language->get('button_back');
+
+		$data['token'] = $this->session->data['token'];
+
+		if (isset($this->error['express_number'])) {
+			$data['error_express_number'] = $this->error['express_number'];
+		} else {
+			$data['error_express_number'] = '';
+		}
+
+		if (isset($this->error['express_company'])) {
+			$data['error_express_company'] = $this->error['express_company'];
+		} else {
+			$data['error_express_company'] = '';
+		}
+
+
+		$url = '';
+
+		if (isset($this->request->get['filter_order_id'])) {
+			$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];
+		}
+
+		if (isset($this->request->get['filter_customer'])) {
+			$url .= '&filter_customer=' . urlencode(html_entity_decode($this->request->get['filter_customer'], ENT_QUOTES, 'UTF-8'));
+		}
+
+		if (isset($this->request->get['filter_order_status'])) {
+			$url .= '&filter_order_status=' . $this->request->get['filter_order_status'];
+		}
+
+		if (isset($this->request->get['filter_total'])) {
+			$url .= '&filter_total=' . $this->request->get['filter_total'];
+		}
+
+		if (isset($this->request->get['filter_date_added'])) {
+			$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
+		}
+
+		if (isset($this->request->get['filter_date_modified'])) {
+			$url .= '&filter_date_modified=' . $this->request->get['filter_date_modified'];
+		}
+
+		if (isset($this->request->get['sort'])) {
+			$url .= '&sort=' . $this->request->get['sort'];
+		}
+
+		if (isset($this->request->get['order'])) {
+			$url .= '&order=' . $this->request->get['order'];
+		}
+
+		if (isset($this->request->get['page'])) {
+			$url .= '&page=' . $this->request->get['page'];
+		}
+
+		$data['breadcrumbs'] = array();
+
+		$data['breadcrumbs'][] = array(
+			'text' => $this->language->get('text_home'),
+			'href' => $this->url->link('common/dashboard', 'token=' . $this->session->data['token'], 'SSL')
+		);
+
+		$data['breadcrumbs'][] = array(
+			'text' => $this->language->get('heading_title'),
+			'href' => $this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL')
+		);
+
+		$data['action'] = $this->url->link('sale/order/express', 'token=' . $this->session->data['token'] . '&order_id=' . $this->request->get['order_id'] . $url, 'SSL');
+
+		$data['cancel'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL');
+
+		if (isset($this->request->get['order_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+			$order_info = $this->model_sale_order->getOrder($this->request->get['order_id']);
+		}
+
+		if (isset($this->request->post['express_number'])) {
+			$data['express_number'] = $this->request->post['express_number'];
+		} elseif (!empty($order_info)) {
+			$data['express_number'] = $order_info['express_number'];
+		} else {
+			$data['express_number'] = '';
+		}
+
+		if (isset($this->request->post['express_company'])) {
+			$data['express_company'] = $this->request->post['express_company'];
+		} elseif (!empty($order_info)) {
+			$data['express_company'] = $order_info['express_company'];
+		} else {
+			$data['express_company'] = '';
+		}
+		
+		$data['header'] = $this->load->controller('common/header');
+		$data['column_left'] = $this->load->controller('common/column_left');
+		$data['footer'] = $this->load->controller('common/footer');
+
+		$this->response->setOutput($this->load->view('sale/order_express.tpl', $data));
+	}
+	
+	protected function validateExpressForm() {
+
+		if (strlen(trim($this->request->post['express_company'])) > 64 ) {
+			$this->error['express_company'] = $this->language->get('error_express_company');
+		}
+		
+		if (trim($this->request->post['express_number']) == '') {
+			$this->error['express_number'] = $this->language->get('error_express_number');
+		}
+
+		return !$this->error;
+	}
+
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$this->url->link('sale/order/info', 'token=' . $this->session->data['token'] . '&order_id=' . $result['order_id'] . $url, 'SSL'),]]></search>
+			<add position="after"><![CDATA[
+				'express'     => $this->url->link('sale/order/express', 'token=' . $this->session->data['token'] . '&order_id=' . $result['order_id'] . $url, 'SSL'),
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$data['button_view']]]></search>
+			<add position="after"><![CDATA[
+				$data['button_express'] = $this->language->get('button_express');
+			]]></add>
+		</operation>
+	</file>
+		
+	<file path="admin/view/template/sale/order_list.tpl">
+		<operation error="skip">
+			<search><![CDATA[<td class="text-right"><a href="<?php echo $order['view']; ?>" data-toggle="tooltip" title="<?php echo $button_view; ?>" class="btn btn-info"><i class="fa fa-eye"></i></a> <a href="<?php echo $order['edit']; ?>" data-toggle="tooltip" title="<?php echo $button_edit; ?>" class="btn btn-primary"><i class="fa fa-pencil"></i></a> <a href="<?php echo $order['delete']; ?>" id="button-delete<?php echo $order['order_id']; ?>" data-toggle="tooltip" title="<?php echo $button_delete; ?>" class="btn btn-danger"><i class="fa fa-trash-o"></i></a></td>]]></search>
+			<add position="replace"><![CDATA[
+				<td class="text-right"><a href="<?php echo $order['view']; ?>" data-toggle="tooltip" title="<?php echo $button_view; ?>" class="btn btn-info"><i class="fa fa-eye"></i></a> <a href="<?php echo $order['express']; ?>" data-toggle="tooltip" title="<?php echo $button_express; ?>" class="btn btn-info"><i class="fa fa-truck"></i></a> <a href="<?php echo $order['edit']; ?>" data-toggle="tooltip" title="<?php echo $button_edit; ?>" class="btn btn-primary"><i class="fa fa-pencil"></i></a> <a href="<?php echo $order['delete']; ?>" id="button-delete<?php echo $order['order_id']; ?>" data-toggle="tooltip" title="<?php echo $button_delete; ?>" class="btn btn-danger"><i class="fa fa-trash-o"></i></a></td>
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="admin/model/sale/order.php">
+		<operation error="skip">
+			<search><![CDATA[public function getTotalEmailsByProductsOrdered($products) {]]></search>
+			<add position="before"><![CDATA[
+	public function editOrderExpress($order_id, $data = array()) {
+		$query = $this->db->query("UPDATE `" . DB_PREFIX . "order` SET express_number = '" . $this->db->escape($data['express_number']) . "', express_company = '" . $this->db->escape($data['express_company']). "' WHERE order_id = '" . (int)$order_id . "'");
+	}
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="admin/model/sale/order.php">
+		<operation error="skip">
+			<search><![CDATA[$order_query->row['email'],]]></search>
+			<add position="after"><![CDATA[
+				'express_company'          => $order_query->row['express_company'],
+				'express_number'           => $order_query->row['express_number'],
+			]]></add>
+		</operation>
+	</file>
+
+	
+	<file path="catalog/language/english/account/order.php">
+		<operation error="skip">
+			<search><![CDATA[$_['column_comment']]]></search>
+			<add position="after"><![CDATA[
+				$_['column_express_company']      =   'Express Company';
+				$_['column_express_number']       =   'Express Number';
+				$_['column_express_description']  =   'Description';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['text_error']]]></search>
+			<add position="after"><![CDATA[
+				$_['text_express_info']       =   'Express Info';
+				$_['text_express_error']      =   'Something wrong? Click here';
+				$_['text_express_wait']       =   'No express information, please wait.';
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="catalog/language/zh-CN/account/order.php">
+		<operation error="skip">
+			<search><![CDATA[$_['column_comment']]]></search>
+			<add position="after"><![CDATA[
+				$_['column_express_company']      =   '快递公司';
+				$_['column_express_number']       =   '快递编号';
+				$_['column_express_description']  =   '说明';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['text_error']]]></search>
+			<add position="after"><![CDATA[
+				$_['text_express_info']       =   '快递信息';
+				$_['text_express_error']      =   '有问题？点击这里';
+				$_['text_express_wait']       =   '暂无快递信息，请等待系统更新。';
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="catalog/language/zh-HK/account/order.php">
+		<operation error="skip">
+			<search><![CDATA[$_['column_comment']]]></search>
+			<add position="after"><![CDATA[
+				$_['column_express_company']      =   '快遞公司';
+				$_['column_express_number']       =   '快遞編號';
+				$_['column_express_description']  =   '說明';
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$_['text_error']]]></search>
+			<add position="after"><![CDATA[
+				$_['text_express_info']       =   '快遞信息';
+				$_['text_express_error']      =   '有問題？點擊這裡';
+				$_['text_express_wait']       =   '暫無快遞信息，請等待系統更新。';
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="catalog/controller/account/order.php">
+		<operation error="skip">
+			<search><![CDATA[$this->language->get('text_comment');]]></search>
+			<add position="after"><![CDATA[
+				$data['text_express_error'] = $this->language->get('text_express_error');
+				$data['text_express_info'] = $this->language->get('text_express_info');
+				$data['text_express_wait'] = $this->language->get('text_express_wait');
+			]]></add>
+		</operation>
+		<operation error="skip">
+			<search><![CDATA[$this->language->get('column_comment');]]></search>
+			<add position="after"><![CDATA[
+				$data['column_express_company'] = $this->language->get('column_express_company');
+				$data['column_express_number'] = $this->language->get('column_express_number');
+				$data['column_express_description'] = $this->language->get('column_express_description');
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="catalog/controller/account/order.php">
+		<operation error="skip">
+			<search><![CDATA[nl2br($order_info['comment']);]]></search>
+			<add position="after"><![CDATA[
+
+			// Get express info
+			$data['express_info'] = array();
+			$data['express_number'] = $order_info['express_number'];
+			$data['express_company'] = $order_info['express_company'];
+			if ($order_info['express_number']) {
+				// Use kuaidi100 api
+
+				$timeout = 5;
+				$curlEnabledFlag = function_exists('curl_version');
+				
+				$url = 'http://www.kuaidi100.com/autonumber/auto?num='.$order_info['express_number'];
+				if ($curlEnabledFlag) {
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL, $url);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+					$url_contents = curl_exec($ch);
+					curl_close($ch);
+				} else {
+					$url_contents = @file_get_contents($url);
+				}
+
+				$companyCode = json_decode($url_contents, true);
+
+				if (!empty($companyCode[0]['comCode'])) {
+					$expressCompanyCode = $companyCode[0]['comCode'];
+
+					$url = 'http://www.kuaidi100.com/query?type='.$expressCompanyCode.'&postid='.$order_info['express_number'];
+					if ($curlEnabledFlag) {
+						$ch = curl_init();
+						curl_setopt($ch, CURLOPT_URL, $url);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+						$url_contents = curl_exec($ch);
+						curl_close($ch);
+					} else {
+						$url_contents = @file_get_contents($url);
+					}
+
+					$expressContent = json_decode($url_contents, true);
+
+					$data['express_message'] = $expressContent['message'];
+					if ($expressContent['status'] == '200') {
+						$data['express_info'] = $expressContent['data'];
+
+						if (!$data['express_company']) {
+							$data['express_company'] = $expressContent['com'];
+						}
+					}
+				}
+				// Request url
+				if ($data['express_company']) {
+					$data['express_url'] = 'http://www.kuaidi100.com/chaxun?com='.$data['express_company'].'&nu='.$order_info['express_number'];
+				} else {
+					$data['express_url'] = 'http://www.kuaidi100.com';
+				}
+			}
+
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="catalog/model/account/order.php">
+		<operation error="skip">
+			<search><![CDATA[$order_query->row['email'],]]></search>
+			<add position="after"><![CDATA[
+				'express_number'           => $order_query->row['express_number'],
+				'express_company'          => $order_query->row['express_company'],
+			]]></add>
+		</operation>
+	</file>
+	
+	<file path="catalog/view/theme/*/template/account/order_info.tpl">
+		<operation error="skip">
+			<search><![CDATA[($histories)]]></search>
+			<add position="before"><![CDATA[
+
+	  <?php if ($express_number) { ?>
+      <h3><?php echo $text_express_info; ?></h3>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <td class="text-left"><?php echo $column_express_company; ?></td>
+              <td class="text-left"><?php echo $column_express_number; ?></td>
+              <td class="text-left"><?php echo $column_express_description; ?></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left"><?php echo $express_company; ?></td>
+              <td class="text-left"><?php echo $express_number; ?></td>
+              <td class="text-left">
+                <a href="<?php echo $express_url; ?>" target="_blank"><?php echo $text_express_error; ?></a>
+              </td>
+            </tr>
+            <?php if ($express_info) { ?>
+            <?php foreach ($express_info as $key => $val) { ?>
+            <tr>
+              <td><?php echo $val['time']; ?></td>
+              <td><?php echo $val['context']; ?></td>
+            </tr>
+            <?php } ?>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
+      <?php } else { ?>
+      <h3><?php echo $text_express_info; ?></h3>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <tbody>
+            <tr>
+              <td class="text-left"><?php echo $text_express_wait; ?></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <?php } ?>
+
+			]]></add>
+		</operation>
+	</file>
+
+</modification>
